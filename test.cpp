@@ -13,7 +13,6 @@
 #include "init.hpp"
 #include "contextguard.hpp"
 #include "texture2d.hpp"
-#include "framebuffer.hpp"
 
 #include <geosimd/point.hpp>
 #include <GLFW/glfw3.h>
@@ -115,26 +114,26 @@ struct RGB
 	uint8_t A;
 	};
 
-static RGB g_texture[1920][1200];
+static RGB g_texture[1200][1920];
 
 static void textureFill()
 	{
-	for(size_t k=0;k<1920;++k)
+	for(size_t k=0;k<1200;++k)
 		{
-		for(size_t l=0;l<1200;++l)
+		for(size_t l=0;l<1920;++l)
 			{
-			g_texture[k][l].R=uint8_t(255*k/1920.0f);
-			g_texture[k][l].G=uint8_t(255*l/1200.0f);
+			g_texture[k][l].R=uint8_t(255*k/1200.0f);
+			g_texture[k][l].G=uint8_t(255*l/1920.0f);
 			g_texture[k][l].B=0;
 			g_texture[k][l].A=255;
 			}
 		}
 	}
 
-auto gl_format(RGB dummy)
+inline constexpr auto gl_format(RGB)
 	{return GL_BGRA;}
 
-auto gl_type(RGB dummy)
+inline constexpr auto gl_type(RGB)
 	{return GL_UNSIGNED_INT_8_8_8_8_REV;}
 
 int main()
@@ -158,7 +157,7 @@ int main()
 		Angle::VertexBuffer<uint16_t> facebuff(6);
 		facebuff.bufferData(faces,6);
 
-		Angle::Texture2D texture(1,Angle::TextureFormat::SRGB8_ALPHA8 ,1200,1920);
+		Angle::Texture2D texture(1,Angle::TextureFormat::SRGB8_ALPHA8 ,1920,1200);
 
 		Angle::Program prgm(
 R"EOF(#version 450 core
@@ -176,7 +175,6 @@ layout(location=0) uniform sampler2D texture_data;
 
 void main()
 	{
-//	color=vec4(1,1,1,1);
 	color=texture(texture_data,tex_coords);
 	}
 )EOF"_frag);
@@ -185,7 +183,7 @@ void main()
 		vertex_array.vertexBuffer<0>(vertbuff).enableVertexAttrib<0>()
 			.elementBuffer(facebuff);
 
-		texture.dataSet(&g_texture[0][0],1200,1920);
+		texture.dataSet(&g_texture[0][0],1920,1200);
 
 		texture.bind(1);
 		glEnable(GL_FRAMEBUFFER_SRGB);
@@ -196,7 +194,6 @@ void main()
 			vertex_array.bind();
 			prgm.bind();
 			glUniform1i(0,1);
-		//	glBindSampler(1,0);
 			Angle::drawElements(Angle::DrawMode::TRIANGLES,0,6);
 			glfwSwapBuffers(mainwin.handle());
 			}

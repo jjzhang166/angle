@@ -141,6 +141,17 @@ namespace Angle
 					{glGenerateTextureMipmap(m_handle);}
 				}
 
+			template<class T>
+			void dataSet(const T* data,GLint x,GLint y,GLsizei width_in,GLsizei height_in)
+				{
+				if(width_in + x>m_width || height_in + y>m_height)
+					{realloc(width_in,height_in);}
+				glTextureSubImage2D(m_handle,0,x,y,width_in,height_in,gl_format(T{}),gl_type(T{})
+					,data);
+				if(m_levels>1)
+					{glGenerateTextureMipmap(m_handle);}
+				}
+
 			void bind(GLuint unit) const
 				{
 				glBindTextureUnit(unit,m_handle);
@@ -150,8 +161,9 @@ namespace Angle
 			GLuint handle() noexcept
 				{return m_handle;}
 
-		private:
 			void realloc(GLsizei width_in,GLsizei height_in);
+
+		private:
 			GLuint m_handle;
 			mutable GLuint m_unit;
 			GLsizei m_width;

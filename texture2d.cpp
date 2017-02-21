@@ -15,6 +15,7 @@ void Texture2D::realloc(GLsizei width_in,GLsizei height_in)
 		glDeleteTextures(1,&handle);
 		exceptionRaise(Error("Failed to allocate texture storage."));
 		}
+	glFinish();
 	if(m_unit!=static_cast<GLuint>(-1))
 		{glBindTextureUnit(m_unit,0);}
 	glDeleteTextures(1,&m_handle);
