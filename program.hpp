@@ -28,8 +28,11 @@ namespace Angle
 			~Program() noexcept
 				{glDeleteProgram(m_handle);}
 
-			void bind() noexcept
+			void bind() const noexcept
 				{glUseProgram(m_handle);}
+
+			void unbind() const noexcept
+				{glUseProgram(0);}
 
 		private:
       		static constexpr void collect(GLuint* handles) noexcept

@@ -81,6 +81,28 @@ namespace Angle
 	constexpr GLenum native_type(TextureFormat format) noexcept
 		{return static_cast<GLenum>(format);}
 
+	enum class MagFilter:GLint
+		{
+		 NEAREST=GL_NEAREST
+		,LINEAR=GL_LINEAR
+		};
+
+	constexpr GLint native_type(MagFilter filter) noexcept
+		{return static_cast<GLint>(filter);}
+
+	enum class MinFilter:GLint
+		{
+		 NEAREST=GL_NEAREST
+		,LINEAR=GL_LINEAR
+		,NEAREST_MIPMAP_NEAREST=GL_NEAREST_MIPMAP_NEAREST
+		,LINEAR_MIPMAP_NEAREST=GL_LINEAR_MIPMAP_NEAREST
+		,NEAREST_MIPMAP_LINEAR=GL_NEAREST_MIPMAP_LINEAR
+		,LINEAR_MIPMAP_LINEAR=GL_LINEAR_MIPMAP_LINEAR
+		};
+
+	constexpr GLint native_type(MinFilter filter) noexcept
+		{return static_cast<GLint>(filter);}
+
 	class Texture2D
 		{
 		public:
@@ -110,14 +132,18 @@ namespace Angle
 
 			Texture2D(const Texture2D&)=delete;
 
-			Texture2D(Texture2D&& obj) noexcept:m_handle(obj.m_handle)
-				{obj.m_handle=0;}
+			Texture2D(Texture2D&& obj) noexcept:m_handle(obj.m_handle),m_unit(obj.m_unit)
+				{
+				obj.m_handle=0;
+				obj.m_unit=static_cast<GLuint>(-1);
+				}
 
 			Texture2D& operator=(const Texture2D&)=delete;
 
 			Texture2D& operator=(Texture2D&& obj)
 				{
 				std::swap(obj.m_handle,m_handle);
+				std::swap(obj.m_handle,obj.m_unit);
 				return *this;
 				}
 
@@ -135,7 +161,7 @@ namespace Angle
 				{
 				if(m_width!=width_in || m_height!=height_in)
 					{realloc(width_in,height_in);}
-				glTextureSubImage2D(m_handle,0,0,0,width_in,height_in,gl_format(T{}),gl_type(T{})
+				glTextureSubImage2D(m_handle,0,0,0,width_in,height_in,gl_format(T{}),gl_type(*data)
 					,data);
 				if(m_levels>1)
 					{glGenerateTextureMipmap(m_handle);}
@@ -162,6 +188,18 @@ namespace Angle
 				{return m_handle;}
 
 			void realloc(GLsizei width_in,GLsizei height_in);
+
+			Texture2D& filter(MagFilter filter) noexcept
+				{
+				glTextureParameteri(m_handle,GL_TEXTURE_MAG_FILTER,native_type(filter));
+				return *this;
+				}
+
+			Texture2D& filter(MinFilter filter) noexcept
+				{
+				glTextureParameteri(m_handle,GL_TEXTURE_MAG_FILTER,native_type(filter));
+				return *this;
+				}
 
 		private:
 			GLuint m_handle;

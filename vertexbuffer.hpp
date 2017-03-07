@@ -122,6 +122,35 @@ namespace Angle
 
 			using base::handle;
 		};
+
+	template<BufferUsage usage_type>
+	class VertexBuffer<float __attribute__ ((vector_size (8))),usage_type>:
+		private VertexBuffer<float,usage_type>
+		{
+		public:
+			typedef VertexBuffer<float,usage_type> base;
+			typedef float vector_type __attribute__ ((vector_size (8)));
+			static constexpr auto components=2;
+			static constexpr auto vector_size=components*sizeof(float);
+			using typename base::value_type;
+
+			VertexBuffer(size_t n_elems):base(components*n_elems)
+				{}
+
+			VertexBuffer& bufferData(const vector_type* data,size_t n_elems) noexcept
+				{
+				base::bufferData(reinterpret_cast<const float*>(data),components*n_elems);
+				return *this;
+				}
+
+			VertexBuffer& bufferDataResize(const vector_type* data,size_t n_elems) noexcept
+				{
+				base::bufferDataResize(reinterpret_cast<const float*>(data),components*n_elems);
+				return *this;
+				}
+
+			using base::handle;
+		};
 	};
 
 #endif

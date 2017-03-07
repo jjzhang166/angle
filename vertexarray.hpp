@@ -53,7 +53,7 @@ namespace Angle
 				glDeleteVertexArrays(1,&m_handle);
 				}
 
-			void bind() noexcept
+			void bind() const noexcept
 				{
 				glBindVertexArray(m_handle);
 				bindElementIndexData(m_index_type,m_index_count);
@@ -96,8 +96,8 @@ namespace Angle
 						{}
 				};
 
-			template<GLuint attrib,class ElementType>
-			VertexArray& vertexBuffer(const VertexBuffer<ElementType>& vbo) noexcept
+			template<GLuint attrib,class ElementType,BufferUsage usage_type>
+			VertexArray& vertexBuffer(const VertexBuffer<ElementType,usage_type>& vbo) noexcept
 				{
 				static_assert(attrib>=0 && attrib<size(BatchLayout::attributes),"Attribute index out of bounds");
 				typedef typename TypeGet<BatchLayout::attributes[attrib].type>::type attrib_type;
@@ -108,8 +108,8 @@ namespace Angle
 				return *this;
 				}
 
-			template<class IndexType>
-			VertexArray& elementBuffer(const VertexBuffer<IndexType>& buffer) noexcept
+			template<class IndexType,BufferUsage usage_type>
+			VertexArray& elementBuffer(const VertexBuffer<IndexType,usage_type>& buffer) noexcept
 				{
 				static_assert(std::is_integral<IndexType>::value,"IndexType must be an intger");
 				glVertexArrayElementBuffer(m_handle,buffer.handle());
